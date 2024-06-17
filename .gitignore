@@ -131,7 +131,6 @@ dist
 
 .fake
 
-# Api 
-API/.vs/*
-API/bin/*
-API/obj/*
+API/.vs*
+API/bin*
+API/obj*
