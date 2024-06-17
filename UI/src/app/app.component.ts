@@ -24,7 +24,7 @@ import { environment } from '../environment/environment';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  private url = "Article";
+  private url = "Articles";
   constructor(private http: HttpClient) {}
 
   articlesForm = new FormGroup({
