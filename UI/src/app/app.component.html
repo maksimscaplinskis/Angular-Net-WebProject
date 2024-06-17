@@ -35,8 +35,8 @@
         </form>
 
         <div>
-          <label class="ml-5" for="search">Search: </label>
-          <input type="text" class="w-[40%] p-1 ml-2  border-2" id="search" name="search" placeholder="by title or description" [formControl]="search">
+          <label class="ml-4" for="search">Search: </label>
+          <input type="text" class="mr-10 p-1 ml-2 border-2" id="search" name="search" placeholder="by title or description" [formControl]="search">
 
           <select class="ml-60 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-sm" [formControl]="filterDate">
             <option value="new">New</option>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div style="max-height: 500px; overflow-y: auto;">
+      <div style="max-height: 300px; overflow-y: auto;">
         <ul *ngIf="articles$ | async as articles; else noArticles">
           <li *ngFor="let article of articles" class="mt-1 p-2 border-b-2 border-slate-200">
             <span class="font-light text-3xl">{{article.title}}</span>
