@@ -55,7 +55,7 @@ dotnet run
 ```bash
 cd UI
 ```
-2. Install the Angular dependencies:
+2. Install the nmp dependencies:
 ```bash
 npm install
 ```
@@ -63,3 +63,7 @@ npm install
 ```bash
 ng serve
 ```
+# Usage
+
+1. Open your browser and navigate to http://localhost:4200 to access the frontend.
+2. The backend API should be running on https://localhost:7280.
