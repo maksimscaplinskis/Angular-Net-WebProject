@@ -1,10 +1,10 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, OnInit, } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Observable, combineLatest, of, startWith } from 'rxjs';
+import { Observable, combineLatest, startWith } from 'rxjs';
 import { Article } from './models/article.model';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs/operators';
 import { environment } from '../environment/environment';
 
@@ -27,46 +27,28 @@ export class AppComponent implements OnInit {
   private url = "Articles";
   constructor(private http: HttpClient) {}
 
+  ngOnInit() {
+    this.search.setValue('');
+    this.articlesForm.reset();
+    this.initializeArticlesStream();
+  }
+
+  private getArticles(): Observable<Article[]> {
+    return this.http.get<Article[]>(`${environment.apiUrl}/${this.url}`);
+  }
+
   articlesForm = new FormGroup({
-    title: new FormControl<string>(""),
-    description: new FormControl<string>(""),
-    date: new FormControl<string>(""),
-    type: new FormControl<string>(""),
+    title: new FormControl<string>("", Validators.required),
+    description: new FormControl<string>("", Validators.required),
+    date: new FormControl<string>("", Validators.required),
+    type: new FormControl<string>("", Validators.required),
   });
 
   search = new FormControl<string>('');
   filterDate = new FormControl<string>('new');
   filterType = new FormControl<string>('');
 
-  articles$ = combineLatest([
-    this.getArticles(),
-    this.search.valueChanges.pipe(startWith('')),
-    this.filterDate.valueChanges.pipe(startWith('new')),
-    this.filterType.valueChanges.pipe(startWith(''))
-  ]).pipe(
-    map(([articles, searchTerm, sortTerm, filterType]) => {
-      let filteredArticles = articles.filter(article =>
-        article.title.toLowerCase().includes((searchTerm ?? '').toLowerCase()) ||
-        article.description.toLowerCase().includes((searchTerm ?? '').toLowerCase())
-      );
-
-      if (filterType) {
-        filteredArticles = filteredArticles.filter(article => article.type === filterType);
-      }
-
-      if (sortTerm === 'new') {
-        filteredArticles = filteredArticles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      } else if (sortTerm === 'oldest') {
-        filteredArticles = filteredArticles.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      }
-
-      return filteredArticles;
-    })
-  );
-
-  ngOnInit() {
-    this.search.setValue('');
-  }
+  articles$!: Observable<Article[]>;
 
   onFormSubmit() {
     const addArticleRequest = {
@@ -79,38 +61,42 @@ export class AppComponent implements OnInit {
     this.http.post(`${environment.apiUrl}/${this.url}`, addArticleRequest)
       .subscribe({
         next: () => {
-          this.articles$ = combineLatest([
-            this.getArticles(),
-            this.search.valueChanges.pipe(startWith('')),
-            this.filterDate.valueChanges.pipe(startWith('new')),
-            this.filterType.valueChanges.pipe(startWith(''))
-          ]).pipe(
-            map(([articles, searchTerm, sortTerm, filterType]) => {
-              let filteredArticles = articles.filter(article =>
-                article.title.toLowerCase().includes((searchTerm ?? '').toLowerCase()) ||
-                article.description.toLowerCase().includes((searchTerm ?? '').toLowerCase())
-              );
-
-              if (filterType) {
-                filteredArticles = filteredArticles.filter(article => article.type === filterType);
-              }
-
-              if (sortTerm === 'new') {
-                filteredArticles = filteredArticles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-              } else if (sortTerm === 'oldest') {
-                filteredArticles = filteredArticles.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-              }
-
-              return filteredArticles;
-            })
-          );
+          this.initializeArticlesStream();
           this.articlesForm.reset();
         }
       });
   }
 
-  private getArticles(): Observable<Article[]> {
-    return this.http.get<Article[]>(`${environment.apiUrl}/${this.url}`);
+
+
+  private initializeArticlesStream() {
+    this.articles$ = combineLatest([
+      this.getArticles(),
+      this.search.valueChanges.pipe(startWith('')),
+      this.filterDate.valueChanges.pipe(startWith('new')),
+      this.filterType.valueChanges.pipe(startWith(''))
+    ]).pipe(
+      map(([articles, search, filterDate, filterType]) => this.searchAndFilterArticles(articles, search!, filterDate!, filterType!))
+    );
+  }
+
+  private searchAndFilterArticles(articles: Article[], search: string , filterDate: string, filterType: string): Article[] {
+    let filteredArticles = articles.filter(article =>
+      article.title.toLowerCase().includes((search ?? '').toLowerCase()) ||
+      article.description.toLowerCase().includes((search ?? '').toLowerCase())
+    );
+
+    if (filterType) {
+      filteredArticles = filteredArticles.filter(article => article.type === filterType);
+    }
+
+    if (filterDate === 'new') {
+      filteredArticles = filteredArticles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    } else if (filterDate === 'oldest') {
+      filteredArticles = filteredArticles.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+
+    return filteredArticles;
   }
 }
 

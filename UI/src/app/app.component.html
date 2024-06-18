@@ -54,12 +54,14 @@
 
       <div style="max-height: 300px; overflow-y: auto;">
         <ul *ngIf="articles$ | async as articles; else noArticles">
-          <li *ngFor="let article of articles" class="mt-1 p-2 border-b-2 border-slate-200">
-            <span class="font-light text-3xl">{{article.title}}</span>
-            <div class="mt-2">{{article.description}}</div>
-            <div class="mt-1 text-right">{{article.date}}</div>
-            <div class="">{{article.type}}</div>
-          </li>
+          <ng-container *ngIf="articles.length > 0; else noArticles">
+            <li *ngFor="let article of articles" class="mt-1 p-2 border-b-2 border-slate-200">
+              <span class="font-light text-3xl">{{article.title}}</span>
+              <div class="mt-2">{{article.description}}</div>
+              <div class="mt-1 text-right">{{article.date}}</div>
+              <div class="">{{article.type}}</div>
+            </li>
+          </ng-container>
         </ul>
         <ng-template #noArticles>
           <div class="mt-1 p-2 border-b-2 border-slate-200 flex justify-center">
