@@ -19,14 +19,47 @@ This repository contains a web application built using Angular for the frontend 
 ### Clone the repository
 ```bash
 git clone https://github.com/maksimscaplinskis/Angular-Net-WebProject.git
+```
+```bash
 cd Angular-Net-WebProject
 ```
 
 ### Backend setup
 
-Configuration with SQL database.
+1. Navigate to the backend directory
 ```bash
 cd API
+```
+2. Restore the .NET dependencies:
+```bash
+dotnet restore
+```
+3. Update the database connection string in `appsetting.json`:
+```json
+"ConnectionStrings": {
+    "DefaultConnection": "Server=CHANGE-ME; Database=ArticleDB; Trusted_connection=true; TrustServerCertificate=true"
+}
+```
+4. Apply database migration:
+```bash
 dotnet ef database update
+```
+5. Run the backend server:
+```bash
+dotnet run
+```
 
+### Frontend Setup
 
+1. Navigate to the frontend directory:
+```bash
+cd UI
+```
+2. Install the Angular dependencies:
+```bash
+npm install
+```
+3. Run the frontend server:
+```bash
+ng serve
+```
